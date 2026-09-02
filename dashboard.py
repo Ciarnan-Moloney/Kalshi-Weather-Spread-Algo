@@ -10,8 +10,8 @@ from cryptography.hazmat.primitives import serialization
 # ==========================================
 # CONFIGURATION
 # ==========================================
-KALSHI_KEY_ID = "59502368-e6d9-4b89-9840-f877731e4329"
-PRIVATE_KEY_PATH = "MCMOL.key"
+KALSHI_KEY_ID = =
+PRIVATE_KEY_PATH = =
 REFRESH_RATE_MS = 10000  # 10 seconds in milliseconds
 
 
