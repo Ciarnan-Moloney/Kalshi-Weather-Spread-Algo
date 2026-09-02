@@ -14,8 +14,8 @@ import weather_api
 # ==========================================
 # 1. BOT CONFIGURATION & RISK LIMITS
 # ==========================================
-KALSHI_KEY_ID = "59502368-e6d9-4b89-9840-f877731e4329"
-PRIVATE_KEY_PATH = "MCMOL.key"
+KALSHI_KEY_ID = 
+PRIVATE_KEY_PATH = 
 
 ACTIVE_MARKETS = ["Chicago", "Miami", "Phoenix", "LAX", "Vegas", "Austin"]
 
@@ -35,7 +35,7 @@ def calculate_fee(price, contracts):
 
 
 def extract_bracket_midpoint(title):
-    """Safely extracts the temperature midpoint by stripping out the trailing date."""
+    """Takes temp midpoint."""
     if "on " in title:
         title_clean = title.split("on ")[0]
     else:
@@ -83,12 +83,16 @@ def get_auth_headers(method, path):
         return None
 
 # ==========================================
-# 3. GUARDED PAIR SPREAD EXECUTION
+# 3. Pair Spread
 # ==========================================
 
 
 def evaluate_and_trade():
-    print("\n📡 Scanning Kalshi and Aviation Feeds for real-time weather...")
+    print("\n Scanning Kalshi and Aviation Feeds for real-time weather...")
+    """
+    Again like stated in the weather model.py the tempature data was not accurate / quick enough to keep model runnning
+    Became a testing ground of different solution. Not cleanest code or ideas.
+    """
 
     kalshi_prefixes = {
         "Chicago": "KXHIGHCHI",
@@ -104,7 +108,7 @@ def evaluate_and_trade():
     for city in ACTIVE_MARKETS:
         print(f"\n--- Evaluating {city} ---")
 
-        # 1. Pull predictive criteria from the low-latency aviation model
+        # 1. Pull predictive data
         try:
             model_result = weather_api.get_market_probability(city)
         except Exception as e:
@@ -123,7 +127,7 @@ def evaluate_and_trade():
         print(f"✈️ Live Airport Sensor High: {forecast_max}°F")
         print(f"🧠 Model True Probability: {true_prob * 100:.1f}%")
 
-        # 2. Fetch specific Kalshi Event Ticker
+        # 2. Fetch Kalshi Event Ticker
         target_event_ticker = f"{kalshi_prefixes[city]}-{date_code}"
 
         try:
@@ -143,7 +147,7 @@ def evaluate_and_trade():
                 f"❌ Insufficient active brackets found for ticker: {target_event_ticker}")
             continue
 
-        # 3. Sort brackets using clean temperature midpoints
+        # 3. Sort brackets
         markets_with_midpoints = []
         for m in city_markets:
             mid = extract_bracket_midpoint(m['title'])
@@ -200,7 +204,7 @@ def evaluate_and_trade():
             print(f"📉 Missing liquidity on one or both legs. Spread build halted.")
             continue
 
-        # 5. Synthetic Pricing & Edge
+        # 5. Pricing & Edge
         available_spread_volume = min(leg_1_vol, leg_2_vol)
         if available_spread_volume == 0:
             print(f"📉 Spread Volume bottlenecked at 0.")
@@ -271,7 +275,7 @@ def evaluate_and_trade():
 
 
 # ==========================================
-# 4. THE MASTER LOOP (24/7 Mode)
+# 4. Constant Running Loop
 # ==========================================
 if __name__ == "__main__":
     print("🚀 Starting Weather Spread Bot (Low-Latency Aviation Edition)...")
