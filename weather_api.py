@@ -13,8 +13,9 @@ AIRPORT_MAPPING = {
 
 def get_market_probability(city):
     """
-    Pulls raw, low-latency airport thermometer data directly from the FAA feed.
-    Extracts the peak temperature hit over the last 15 hours to pinpoint the high.
+    Hard to get high frequency data, orgionally went on meteo stat for updates, however found that once market makes were allowed on the markets data wasn't
+    accurate enough. Here is the problem that led to shutting it down. Tried to use predictive modeling using last 15 hours, but again wasnt accurate enough.
+    Here is what I consider the weakest part of the project.
     """
     station_id = AIRPORT_MAPPING.get(city)
     if not station_id:
@@ -31,28 +32,24 @@ def get_market_probability(city):
 
         if not observations or not isinstance(observations, list):
             print(
-                f"⚠️ Empty response or invalid format from FAA for {station_id}")
+                f"Empty response or invalid format from FAA for {station_id}")
             return None
 
         recent_temps_f = []
         for obs in observations:
             temp_c = obs.get('temp')
             if temp_c is not None:
-                # Convert the raw airport Celsius reading to Fahrenheit
+                # Convert to Farenheit
                 temp_f = (temp_c * 1.8) + 32
                 recent_temps_f.append(temp_f)
 
         if not recent_temps_f:
             print(
-                f"⚠️ No temperature readings found in recent data for {station_id}")
+                f"No temperature readings found in recent data for {station_id}")
             return None
 
-        # The true peak temperature hit at the airport asphalt so far today
         live_high_recorded = max(recent_temps_f)
         forecast_max = round(live_high_recorded)
-
-        # Base probability edge estimation centered around the live real-time high.
-        # This keeps your mathematical execution engine intact.
         return {
             "probability": 0.65,
             "forecast_max": forecast_max
