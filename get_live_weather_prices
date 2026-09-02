@@ -40,8 +40,8 @@ def get_live_weather_prices():
 
             print(f"=== {city_name} Daily Highs ===")
 
-            # Sort by the 'floor_price' so the temperatures appear in order (e.g. >90, >91, >92)
-            # Using float to aviod an error from recieving Strings(had is)
+            # Sort by the 'floor_price' so the temperatures appear in order
+            # Using float to aviod an error from recieving Strings
             markets.sort(key=lambda x: float(x.get("floor_price", 0) or 0))
 
             for m in markets:
@@ -61,7 +61,7 @@ def get_live_weather_prices():
             print("-" * 50)
 
         except Exception as e:
-            # This will now print the REAL error, not just 'Network Error'
+            # Prints what city crashed
             print(f"CRASH on {city_name}: {e}")
 
 
