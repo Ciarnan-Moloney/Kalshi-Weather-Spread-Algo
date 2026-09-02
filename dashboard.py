@@ -61,7 +61,6 @@ def fetch_portfolio_data():
             f"https://external-api.kalshi.com{pos_path}", headers=pos_headers, timeout=10)
         pos_resp.raise_for_status()
 
-        # ⚠️ FIXED: Kalshi V2 uses 'market_positions', not 'positions'
         positions = pos_resp.json().get('market_positions', [])
 
         return balance_cents / 100.0, positions
@@ -92,12 +91,10 @@ def update_dashboard():
     else:
         lbl_error.config(text="")
         lbl_balance.config(text=f"💰 Available Liquid Balance: ${balance:,.2f}")
-
-        # Clear existing rows in the table
         for row in tree.get_children():
             tree.delete(row)
 
-        # ⚠️ FIXED: V2 uses 'position_fp' as a fixed-point string, not an integer
+
         active_positions = [p for p in positions if float(
             p.get('position_fp', 0)) != 0]
         total_invested = 0
@@ -108,32 +105,21 @@ def update_dashboard():
         else:
             for p in active_positions:
                 ticker = p.get('ticker', 'UNKNOWN')
-
-                # Convert the V2 fixed-point string to an integer count
                 count = int(float(p.get('position_fp', 0)))
-
-                # ⚠️ FIXED: V2 returns financials as pre-formatted dollar strings
                 pos_cost = float(p.get('market_exposure_dollars', 0))
                 realized_pnl = float(p.get('realized_pnl_dollars', 0))
-
                 total_invested += pos_cost
                 tree.insert("", "end", values=(ticker, count,
                             f"${pos_cost:,.2f}", f"${realized_pnl:,.2f}"))
 
         lbl_total.config(
             text=f"TOTAL CAPITAL DEPLOYED: ${total_invested:,.2f}")
-
-    # Schedule the next update
     root.after(REFRESH_RATE_MS, update_dashboard)
-
-
-# Initialize main window
 root = tk.Tk()
 root.title("Kalshi Live Portfolio")
 root.geometry("650x400")
 root.configure(padx=20, pady=20)
-
-# Header Elements
+# Header on GUI
 lbl_title = tk.Label(
     root, text="📈 Kalshi Live Portfolio Dashboard", font=("Arial", 18, "bold"))
 lbl_title.pack(anchor="w")
@@ -167,13 +153,12 @@ tree.column("pnl", width=120, anchor="e")
 
 tree.pack(fill="x", pady=10)
 
-# Footer Element
+# Footer on GUI
 lbl_total = tk.Label(
     root, text="TOTAL CAPITAL DEPLOYED: $--.--", font=("Arial", 12, "bold"))
 lbl_total.pack(anchor="e")
 
-# Start the auto-update loop
+# Auto update
 root.after(0, update_dashboard)
 
-# Run the application
 root.mainloop()
