@@ -40,7 +40,7 @@ for city, info in CITIES.items():
         "latitude": info['lat'], "longitude": info['lon'],
         "start_date": "2024-01-01", "end_date": "2026-03-15",
         "daily": "temperature_2m_max", "timezone": info['tz'],
-        "temperature_unit": "fahrenheit"  # ⚠️ FORCED NATIVE FAHRENHEIT
+        "temperature_unit": "fahrenheit"
     }
     f_data = requests.get(archive_url, params=params).json()['daily']
     df_forecast = pd.DataFrame(f_data).rename(
@@ -51,7 +51,6 @@ for city, info in CITIES.items():
     # C. Merge and Train
     data = daily_actuals.join(df_forecast).dropna()
 
-    # ⚠️ TIGHTENED TARGET: Now checks if actual is within +/- 2 degrees FAHRENHEIT
     data['target_hit'] = (
         (data['actual_max'] - data['forecast_max']).abs() <= 2).astype(int)
 
@@ -65,7 +64,7 @@ for city, info in CITIES.items():
     print(
         f"✅ {city} Model Trained. Strict 4°F Bracket Accuracy: {model.score(X, y):.2%}")
 
-print("\n--- ALL MODELS SYNCED TO HEDGE FUND ---")
+print("\n--- Models Synced ---")
 
 # Export Models
 for city in CITIES.keys():
